@@ -101,8 +101,8 @@ void wifiEventHandler(rw_evt_type event) {
 		case RW_EVT_STA_PASSWORD_WRONG:
 		case RW_EVT_STA_NO_AP_FOUND:
 		case RW_EVT_STA_ASSOC_FULL:
-		case RW_EVT_STA_DISCONNECTED:
-		case RW_EVT_STA_CONNECT_FAILED:
+		case RW_EVT_STA_ACTIVE_DISCONNECTED:
+		case RW_EVT_STA_ASSOC_FAILED:
 			eventId									 = ARDUINO_EVENT_WIFI_STA_DISCONNECTED;
 			eventInfo.wifi_sta_disconnected.ssid_len = 0;
 			switch (event) {
@@ -118,10 +118,10 @@ void wifiEventHandler(rw_evt_type event) {
 				case RW_EVT_STA_ASSOC_FULL:
 					eventInfo.wifi_sta_disconnected.reason = WIFI_REASON_ASSOC_TOOMANY;
 					break;
-				case RW_EVT_STA_DISCONNECTED:
+				case RW_EVT_STA_ASSOC_FAILED:
 					eventInfo.wifi_sta_disconnected.reason = WIFI_REASON_ASSOC_LEAVE;
 					break;
-				case RW_EVT_STA_CONNECT_FAILED:
+				case RW_EVT_STA_ACTIVE_DISCONNECTED:
 					eventInfo.wifi_sta_disconnected.reason = WIFI_REASON_CONNECTION_FAIL;
 					break;
 				default:

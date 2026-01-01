@@ -73,6 +73,7 @@
 #define CFG_USE_DCACHE					0
 #define CFG_USE_DEEP_PS					1
 #define CFG_USE_DHCP					1
+#define CFG_USE_DHCPD				  1
 #define CFG_USE_FAKERTC_PS				0
 #define CFG_USE_FFT						0
 #define CFG_USE_FTPD_UPGRADE			0

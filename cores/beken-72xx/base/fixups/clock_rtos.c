@@ -23,6 +23,8 @@ extern UINT32 bk_cal_init(UINT32 setting);
 extern void mcu_ps_increase_clr(void);
 extern uint32_t preempt_delayed_schedule_get_flag(void);
 extern void preempt_delayed_schedule_clear_flag(void);
+extern void preempt_delayed_schedule_handler(void);
+
 
 // forward definitions
 static void fclk_timer_hw_init(BK_HW_TIMER_INDEX timer_id);
@@ -91,14 +93,7 @@ static void fclk_hdl(UINT8 param) {
 	if (!mcu_ps_need_pstick())
 		return;
 #endif
-	GLOBAL_INT_DECLARATION();
-	GLOBAL_INT_DISABLE();
-	if (xTaskIncrementTick() != pdFALSE || preempt_delayed_schedule_get_flag()) {
-		preempt_delayed_schedule_clear_flag();
-		/* Select a new task to run. */
-		vTaskSwitchContext();
-	}
-	GLOBAL_INT_RESTORE();
+  preempt_delayed_schedule_handler();
 }
 
 UINT32 fclk_update_tick(UINT32 tick) {

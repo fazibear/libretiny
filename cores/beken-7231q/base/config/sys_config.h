@@ -56,6 +56,7 @@
 #define CFG_USE_CAMERA_INTF				0
 #define CFG_USE_DEEP_PS					1
 #define CFG_USE_DHCP					1
+#define CFG_USE_DHCPD				  1
 #define CFG_USE_FAKERTC_PS				0
 #define CFG_USE_FTPD_UPGRADE			0
 #define CFG_USE_HSLAVE_SPI				0

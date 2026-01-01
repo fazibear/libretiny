@@ -44,7 +44,7 @@
 		"parent": "beken-72xx",
 		"code": "bk72xxgen1",
 		"description": "Beken 72xx (ARM)",
-		"package": "framework-beken-bdk"
+		"package": "framework-beken-sdk"
 	},
 	"beken-72xx-gen2": {
 		"parent": "beken-72xx",

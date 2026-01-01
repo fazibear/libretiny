@@ -14,7 +14,7 @@ ROOT_DIR = join("$SDK_DIR", "beken378")
 APP_DIR = join(ROOT_DIR, "app")
 DRIVER_DIR = join(ROOT_DIR, "driver")
 FUNC_DIR = join(ROOT_DIR, "func")
-
+FREERTOS_DIR = join("$SDK_DIR", "os/FreeRTOSv9.0.0/FreeRTOS/Source")
 # Load sys_config.h into env
 env.LoadConfig(join("$FAMILY_DIR", "base", "config", "sys_config.h"))
 
@@ -35,7 +35,6 @@ SOC_NAMES = {
     SOC_BK7236: "bk7236",
 }
 SOC = env.Cfg("CFG_SOC_NAME")
-WPA_VERSION = "wpa_supplicant_2_9" if env.Cfg("CFG_USE_WPA_29") else "hostapd-2.5"
 
 # Flags
 queue.AppendPublic(
@@ -51,9 +50,14 @@ queue.AppendPublic(
         "+<-O1>",
         "-<-Os>",
     ],
+    CXXFLAGS=[
+        "-fpermissive"
+    ],
     CPPDEFINES=[
         # SDK options
         ("CFG_OS_FREERTOS", "1"),
+        ("SDK_COMMIT_ID", r"\"\""),
+        ("OSK_COMMIT_ID", r"\"\""),
         ("MBEDTLS_CONFIG_FILE", r"\"tls_config.h\""),
         ("WIFI_BLE_COEXIST", "1"),
         ("WOLFSSL_BEKEN", env.Cfg("CFG_WPA3")),
@@ -162,7 +166,7 @@ queue.AddLibrary(
         "+<dma/*.c>",
         "+<fft/*.c>",
         "+<flash/*.c>",
-        "+<general_dma/*.c>",
+        "+<general_dma/general_dma.c>",
         "+<gpio/*.c>",
         "+<i2c/*.c>",
         "+<i2s/*.c>",
@@ -204,6 +208,7 @@ queue.AddLibrary(
         "+<uart>",
         "+<usb>",
         "+<../ip/**>",
+        "+<../func/misc>"
     ],
     options=dict(CCFLAGS=["-Wno-unused-variable"]),
 )
@@ -225,6 +230,7 @@ queue.AddLibrary(
         "-<misc/fake_clock.c>",  # fixups
         "+<net_param_intf/*.c>",
         "+<power_save/*.c>",
+        "-<power_save/low_voltage_ps.c>",
         "+<rwnx_intf/*.c>",
         "+<saradc_intf/*.c>",
         "+<security/*.c>",
@@ -236,6 +242,8 @@ queue.AddLibrary(
         "-<user_driver/BkDriverQspi.c>",
         "+<utf8/*.c>",
         "+<video_transfer/*.c>",
+        "+<force_sleep/*.c>",
+        "+<bk7011_cal/*.c>",
     ],
     includes=[
         "+<base64>",
@@ -261,14 +269,18 @@ queue.AddLibrary(
         "+<user_driver>",
         "+<utf8>",
         "+<video_transfer>",
-        f"+<{WPA_VERSION}/bk_patch>",
-        f"+<{WPA_VERSION}/hostapd>",
-        f"+<{WPA_VERSION}/src>",
-        f"+<{WPA_VERSION}/src/ap>",
-        f"+<{WPA_VERSION}/src/common>",
-        f"+<{WPA_VERSION}/src/drivers>",
-        f"+<{WPA_VERSION}/src/utils>",
-        f"+<{WPA_VERSION}/wpa_supplicant>",
+        "+<wpa_supplicant_2_9/bk_patch>",
+        "+<wpa_supplicant_2_9/hostapd>",
+        "+<wpa_supplicant_2_9/src>",
+        "+<wpa_supplicant_2_9/src/ap>",
+        "+<wpa_supplicant_2_9/src/common>",
+        "+<wpa_supplicant_2_9/src/drivers>",
+        "+<wpa_supplicant_2_9/src/utils>",
+        "+<wpa_supplicant_2_9/wpa_supplicant>",
+        "+<../driver/ble/ble_5_1/platform/7231n/entry>",
+        "+<force_sleep>",
+        "+<misc>",
+        "+<bk7011_cal>",
     ],
 )
 
@@ -281,8 +293,35 @@ freertos_opts = dict(
     ],
 )
 env.Replace(FREERTOS_PORT="beken-bdk", FREERTOS_PORT_DEFINE="BEKEN_BDK")
-queue.AddExternalLibrary("freertos", options=freertos_opts)
-queue.AddExternalLibrary("freertos-port", options=freertos_opts)
+
+# queue.AddExternalLibrary("freertos", options=freertos_opts)
+# queue.AddExternalLibrary("freertos-port", options=freertos_opts)
+
+queue.AddLibrary(
+    name="bdk_freertos",
+    base_dir=FREERTOS_DIR,
+    srcs=[
+        "+<*.c>",
+    ],
+    includes=[
+        "+<include>",
+    ],
+    options=freertos_opts
+)
+
+queue.AddLibrary(
+    name="bdk_freertos_port",
+    base_dir=FREERTOS_DIR,
+    srcs=[
+        "+<portable/Keil/ARM968es/port.c>",
+        "+<portable/MemMang/heap_4.c>",
+    ],
+    includes=[
+        "+<portable/Keil/ARM968es>"
+    ],
+    options=freertos_opts
+)
+
 queue.AddLibrary(
     name="bdk_freertos_thumb",
     base_dir=ROOT_DIR,
@@ -411,7 +450,7 @@ if env.Cfg("CFG_SUPPORT_BLE") and env.Cfg("CFG_BLE_VERSION") == env.Cfg(
 ):
     queue.AddLibrary(
         name="bdk_ble_4_2",
-        base_dir=join(DRIVER_DIR, "ble"),
+        base_dir=join(DRIVER_DIR, "ble/ble_4_2"),
         srcs=[
             "+<**/*.c>",
         ],
@@ -427,11 +466,11 @@ if env.Cfg("CFG_SUPPORT_BLE") and env.Cfg("CFG_BLE_VERSION") == env.Cfg(
         ],
     )
 if env.Cfg("CFG_SUPPORT_BLE") and env.Cfg("CFG_BLE_VERSION") == env.Cfg(
-    "BLE_VERSION_5_x"
+    "BLE_VERSION_5_1"
 ):
     queue.AddLibrary(
-        name="bdk_ble_5_x",
-        base_dir=join(DRIVER_DIR, "ble_5_x_rw"),
+        name="bdk_ble_5_1",
+        base_dir=join(DRIVER_DIR, "ble/ble_5_1"),
         srcs=[
             "+<**/*.c>",
             "-<ble_pub/app/src/app_ble_task.c>",
@@ -484,7 +523,8 @@ queue.AppendPublic(
     LIBS=[
         "airkiss",
         "sensor",
-        "usb",
+        "bk_aware",
+        SOC == SOC_BK7251 and f"usb_{SOC_NAMES[SOC]}",
         # "wpa", # this is compiled from func/hostapd_intf/hostapd_intf.c
         SOC != SOC_BK7231 and f"ble_{SOC_NAMES[SOC]}",
         f"cal_{SOC_NAMES[SOC]}",

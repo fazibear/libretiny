@@ -2,7 +2,7 @@
 
 #define BLE_DEFAULT_WIFI_REQUEST		2
 #define BLE_VERSION_4_2					1
-#define BLE_VERSION_5_x					2
+#define BLE_VERSION_5_1					2
 #define BLE_WIFI_CO_REQUEST				3
 #define CFG_AIRKISS_TEST				0
 #define CFG_AP_MONITOR_COEXIST			0
@@ -65,6 +65,7 @@
 #define CFG_USE_CAMERA_INTF				0
 #define CFG_USE_DEEP_PS					1
 #define CFG_USE_DHCP					1
+#define CFG_USE_DHCPD				  1
 #define CFG_USE_FAKERTC_PS				0
 #define CFG_USE_FTPD_UPGRADE			0
 #define CFG_USE_HSLAVE_SPI				0

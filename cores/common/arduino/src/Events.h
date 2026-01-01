@@ -73,8 +73,8 @@ typedef enum {
 typedef union {
 	wifi_event_sta_scan_done_t wifi_scan_done;
 	wifi_event_sta_authmode_change_t wifi_sta_authmode_change;
-	wifi_event_sta_connected_t wifi_sta_connected;
-	wifi_event_sta_disconnected_t wifi_sta_disconnected;
+	wifi_event_sta_connected_t_ wifi_sta_connected;
+	wifi_event_sta_disconnected_t_ wifi_sta_disconnected;
 	wifi_event_sta_wps_er_pin_t wps_er_pin;
 	wifi_event_sta_wps_fail_reason_t wps_fail_reason;
 	wifi_event_ap_probe_req_rx_t wifi_ap_probereqrecved;
